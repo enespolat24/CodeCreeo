@@ -1,6 +1,7 @@
 package main
 
 import (
+	"codecreeo/handler"
 	"codecreeo/repository"
 	"fmt"
 	"log"
@@ -19,9 +20,7 @@ type App struct {
 }
 
 func (a *App) Register() {
-	a.app.Get("/api/v1/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"status": "ok"})
-	})
+	a.app.Get("/monitor", handler.Monitor())
 }
 
 func main() {
