@@ -11,6 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/joho/godotenv"
 )
 
@@ -21,7 +22,6 @@ type App struct {
 
 func (a *App) Register() {
 	a.app.Get("/monitor", handler.Monitor())
-	a.app.Get("/health", handler.Health)
 }
 
 func main() {
@@ -32,6 +32,7 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New())
+	app.Use(healthcheck.New())
 
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
