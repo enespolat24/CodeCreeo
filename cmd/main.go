@@ -21,6 +21,7 @@ type App struct {
 
 func (a *App) Register() {
 	a.app.Get("/monitor", handler.Monitor())
+	a.app.Get("/health", handler.Health)
 }
 
 func main() {
