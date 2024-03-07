@@ -36,3 +36,7 @@ func New() *Repository {
 		pool: pool,
 	}
 }
+
+func (repo *Repository) Close() {
+	repo.pool.Close()
+}
