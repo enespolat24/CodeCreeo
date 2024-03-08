@@ -24,8 +24,16 @@ type App struct {
 }
 
 func (a *App) Register() {
+	userRepo := repository.NewUserRepository(a.db)
+	userHandler := handler.NewUserHandler(userRepo)
+
 	a.app.Get("/monitor", handler.Monitor())
-	a.app.Post("/users", handler.NewUserHandler(repository.NewUserRepository(a.db)).CreateUser)
+
+	//user routes
+	a.app.Get("/users/:userID", userHandler.GetUserByID)
+	a.app.Post("/users", userHandler.CreateUser)
+	a.app.Put("/users/:userID", userHandler.UpdateUser)
+	a.app.Delete("/users/:userID", userHandler.DeleteUser)
 }
 
 func main() {
