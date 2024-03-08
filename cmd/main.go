@@ -1,8 +1,9 @@
 package main
 
 import (
-	"codecreeo/database"
 	"codecreeo/internal/handler"
+	"codecreeo/internal/model"
+	"codecreeo/internal/repository"
 	"fmt"
 	"log"
 	"os"
@@ -13,28 +14,32 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/healthcheck"
 	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type App struct {
-	app    *fiber.App
-	DbPool database.DbConnection
+	app *fiber.App
+	db  *gorm.DB
 }
 
 func (a *App) Register() {
 	a.app.Get("/monitor", handler.Monitor())
+	a.app.Post("/users", handler.NewUserHandler(repository.NewUserRepository(a.db)).CreateUser)
 }
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
-	// png, err := qrcode.Encode("https://www.google.com", qrcode.Medium, 256)
-	dbConnection := database.NewDbConnection()
-	defer database.NewDbConnection().CloseDbConnection()
 
-	if err := database.NewDbConnection().AutoMigrate(); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to automigrate tables: %v\n", err)
-		os.Exit(1)
+	db, err := gorm.Open(postgres.Open(os.Getenv("DB_CONNECTION_STRING")), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+
+	if err := db.AutoMigrate(&model.User{}); err != nil {
+		log.Fatalf("Failed to automigrate tables: %v", err)
 	}
 	fmt.Println("Tables migrated successfully")
 
@@ -43,7 +48,7 @@ func main() {
 	app.Use(cors.New())
 	app.Use(healthcheck.New())
 
-	application := &App{app: app, DbPool: *dbConnection}
+	application := &App{app: app, db: db}
 	application.Register()
 
 	c := make(chan os.Signal, 1)
@@ -57,6 +62,6 @@ func main() {
 	}()
 
 	if err := app.Listen(":80"); err != nil {
-		log.Fatalf(fmt.Sprintf("app error: %s", err.Error()))
+		log.Fatalf("app error: %s", err)
 	}
 }
