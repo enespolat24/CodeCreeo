@@ -25,18 +25,23 @@ func (a *App) Register() {
 }
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
 	// png, err := qrcode.Encode("https://www.google.com", qrcode.Medium, 256)
 	dbConnection := database.NewDbConnection()
 	defer database.NewDbConnection().CloseDbConnection()
+
+	if err := database.NewDbConnection().AutoMigrate(); err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to automigrate tables: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("Tables migrated successfully")
 
 	app := fiber.New()
 
 	app.Use(cors.New())
 	app.Use(healthcheck.New())
-
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
 
 	application := &App{app: app, DbPool: *dbConnection}
 	application.Register()
