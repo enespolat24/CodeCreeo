@@ -25,12 +25,20 @@ func (qr *QrCodeRepository) Create(userID uint, url string) (*model.QRCode, erro
 	return newQrCode, nil
 }
 
-func (qr *QrCodeRepository) FindByID(id uint) (*model.QRCode, error) {
+func (qr *QrCodeRepository) GetByID(id uint) (*model.QRCode, error) {
 	qrCode := &model.QRCode{}
 	if err := qr.db.First(qrCode, id).Error; err != nil {
 		return nil, err
 	}
 	return qrCode, nil
+}
+
+func (qr *QrCodeRepository) GetByUserID(userID uint) ([]model.QRCode, error) {
+	qrCodes := []model.QRCode{}
+	if err := qr.db.Where("user_id = ?", userID).Find(&qrCodes).Error; err != nil {
+		return nil, err
+	}
+	return qrCodes, nil
 }
 
 func (qr *QrCodeRepository) Update(qrCode *model.QRCode) error {

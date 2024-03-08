@@ -25,7 +25,9 @@ type App struct {
 
 func (a *App) Register() {
 	userRepo := repository.NewUserRepository(a.db)
+	qrRepo := repository.NewQrCodeRepository(a.db)
 	userHandler := handler.NewUserHandler(userRepo)
+	qrHandler := handler.NewQRHandler(*qrRepo)
 
 	a.app.Get("/monitor", handler.Monitor())
 
@@ -34,6 +36,13 @@ func (a *App) Register() {
 	a.app.Post("/users", userHandler.CreateUser)
 	a.app.Put("/users/:userID", userHandler.UpdateUser)
 	a.app.Delete("/users/:userID", userHandler.DeleteUser)
+
+	//qr routes
+	a.app.Get("/qr/:qrID", qrHandler.ViewQRCode)
+	a.app.Get("/qr/user/:userID", qrHandler.GetUserQRCode)
+	a.app.Post("/qr", qrHandler.CreateQRCode)
+	a.app.Put("/qr/:qrID", qrHandler.UpdateQRCode)
+	a.app.Delete("/qr/:qrID", qrHandler.DeleteQRCode)
 }
 
 func main() {
