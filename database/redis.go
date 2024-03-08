@@ -19,7 +19,7 @@ func StartRedis() *redis.Client {
 	opt := &redis.Options{
 		Addr:     redisURL,
 		Password: redisPassword,
-		DB:       0, // Default value
+		DB:       0,
 	}
 
 	if redisDB != "" {
