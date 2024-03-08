@@ -12,7 +12,7 @@ type Repository struct {
 	pool *pgxpool.Pool
 }
 
-func New() *Repository {
+func NewConnection() *Repository {
 	dbUrl := os.Getenv("DB_CONN_STR")
 	config, err := pgxpool.ParseConfig(dbUrl)
 	if err != nil {
@@ -37,6 +37,6 @@ func New() *Repository {
 	}
 }
 
-func (repo *Repository) Close() {
+func (repo *Repository) CloseConnection() {
 	repo.pool.Close()
 }

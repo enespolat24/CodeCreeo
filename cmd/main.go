@@ -26,8 +26,8 @@ func (a *App) Register() {
 
 func main() {
 	// png, err := qrcode.Encode("https://www.google.com", qrcode.Medium, 256)
-	repo := repository.New()
-	defer repo.Close()
+	repo := repository.NewConnection()
+	defer repo.CloseConnection()
 
 	app := fiber.New()
 
@@ -47,7 +47,7 @@ func main() {
 
 	go func() {
 		_ = <-c
-		log.Fatalf("application gracefully shutting down..")
+		log.Fatal("application gracefully shutting down..")
 		_ = app.Shutdown()
 	}()
 
