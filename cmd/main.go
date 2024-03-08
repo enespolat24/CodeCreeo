@@ -1,8 +1,8 @@
 package main
 
 import (
-	"codecreeo/handler"
-	"codecreeo/repository"
+	"codecreeo/database"
+	"codecreeo/internal/handler"
 	"fmt"
 	"log"
 	"os"
@@ -16,8 +16,8 @@ import (
 )
 
 type App struct {
-	app  *fiber.App
-	repo *repository.Repository
+	app    *fiber.App
+	DbPool database.DbConnection
 }
 
 func (a *App) Register() {
@@ -26,8 +26,8 @@ func (a *App) Register() {
 
 func main() {
 	// png, err := qrcode.Encode("https://www.google.com", qrcode.Medium, 256)
-	repo := repository.NewConnection()
-	defer repo.CloseConnection()
+	dbConnection := database.NewDbConnection()
+	defer database.NewDbConnection().CloseDbConnection()
 
 	app := fiber.New()
 
@@ -38,7 +38,7 @@ func main() {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
-	application := &App{app: app, repo: repo}
+	application := &App{app: app, DbPool: *dbConnection}
 	application.Register()
 
 	c := make(chan os.Signal, 1)

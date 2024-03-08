@@ -1,4 +1,4 @@
-package repository
+package database
 
 import (
 	"context"
@@ -8,11 +8,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type Repository struct {
+type DbConnection struct {
 	pool *pgxpool.Pool
 }
 
-func NewConnection() *Repository {
+func NewDbConnection() *DbConnection {
 	dbUrl := os.Getenv("DB_CONN_STR")
 	config, err := pgxpool.ParseConfig(dbUrl)
 	if err != nil {
@@ -32,11 +32,12 @@ func NewConnection() *Repository {
 		os.Exit(1)
 	}
 
-	return &Repository{
+	return &DbConnection{
 		pool: pool,
 	}
+
 }
 
-func (repo *Repository) CloseConnection() {
+func (repo *DbConnection) CloseDbConnection() {
 	repo.pool.Close()
 }
